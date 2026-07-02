@@ -1,0 +1,56 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: rydberg-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+      - CHOKIDAR_USEPOLLING=true
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - rydberg-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rydberg-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - DATABASE_URL=postgresql://rydberg:rydberg@postgres:5432/rydberg
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    networks:
+      - rydberg-net
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: rydberg-postgres
+    environment:
+      - POSTGRES_USER=rydberg
+      - POSTGRES_PASSWORD=rydberg
+      - POSTGRES_DB=rydberg
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - rydberg-net
+
+volumes:
+  pgdata:
+
+networks:
+  rydberg-net:
+    driver: bridge
