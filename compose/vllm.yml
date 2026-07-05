@@ -1,0 +1,63 @@
+services:
+  vllm:
+    image: intel/vllm:latest
+    container_name: rydberg-vllm
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    devices:
+      # Intel GPU render/display nodes
+      - /dev/dri:/dev/dri
+    group_add:
+      # numeric GIDs from host `getent group video|render` (names don't resolve inside the container)
+      - "44"   # video
+      - "993"  # render
+    ipc: host
+    mem_limit: 45g
+    # Cap container logs so they can't grow unbounded (50MB total: 5 x 10MB).
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    environment:
+      HF_HOME: ${HF_HOME}
+      HUGGING_FACE_HUB_TOKEN: ${HUGGING_FACE_HUB_TOKEN}
+      # oneCCL's default drmfd IPC exchange can't open device FDs inside a container;
+      # use sockets to avoid "ze_fd_manager: opendir failed" during device init.
+      CCL_ZE_IPC_EXCHANGE: sockets
+      # Pin to the first Arc A770 only (single-GPU). vLLM still runs a warm-up
+      # all_reduce on XPU init, so oneCCL/by-path is required even with one GPU.
+      ZE_AFFINITY_MASK: "0"
+      # Consumer Arc GPUs lack native FP64; vLLM's XPU topk/topp sampler kernel
+      # needs it. Enable double-precision emulation to avoid
+      # "Required aspect fp64 is not supported on the device".
+      OverrideDefaultFP64Settings: "1"
+      IGC_EnableDPEmulation: "1"
+    volumes:
+      - ${HF_HOME}:${HF_HOME}
+      # oneCCL's ze_fd_manager enumerates /dev/dri/by-path, which the `devices:`
+      # mount above doesn't recreate — bind-mount it so device init succeeds.
+      - /dev/dri/by-path:/dev/dri/by-path:ro
+    command:
+      - vllm
+      - serve
+      - Qwen/Qwen2.5-7B-Instruct-AWQ
+      - --quantization
+      - awq
+      - --dtype
+      - float16
+      # The default FlashAttention XPU kernel only supports Xe2/Xe3; the A770 is
+      # Xe-HPG (Alchemist), so use the Triton attention backend instead.
+      - --attention-backend
+      - TRITON_ATTN
+      # AWQ int4 weights (~5.5 GiB) leave plenty of room on the 16 GB A770.
+      - --enforce-eager           # XPU torch.compile/inductor path is flaky; eager is a safe default
+      - --max-model-len
+      - "32768"
+      - --gpu-memory-utilization
+      - "0.90"
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"

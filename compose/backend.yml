@@ -1,0 +1,25 @@
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: rydberg-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../backend:/app
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      LLM_BASE_URL: ${LLM_BASE_URL}
+      LLM_MODEL: ${LLM_MODEL}
+      GMAIL_CLIENT_ID: ${GMAIL_CLIENT_ID}
+      GMAIL_CLIENT_SECRET: ${GMAIL_CLIENT_SECRET}
+    depends_on:
+      - postgres
+    networks:
+      - rydberg-net
+
+networks:
+  rydberg-net:
+    external: true
