@@ -2,9 +2,10 @@
 #
 # This file does almost nothing itself: it just includes the per-service
 # compose files under ./compose. Run everything from here:
-#
-#   docker compose up -d                          # postgres + backend + frontend
-#   docker compose --profile inference up -d      # ...plus vLLM
+#   
+#   docker compose --profile full up -d           # everything
+#   docker compose --profile core up -d           # postgres + backend + frontend
+#   docker compose --profile vllm up -d      # vLLM
 #   docker compose ps                             # see the whole stack
 #   docker compose down                           # stop the whole stack
 #
