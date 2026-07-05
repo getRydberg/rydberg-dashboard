@@ -1,6 +1,6 @@
 import type { Dashboard } from '../useDashboard';
 
-export function TopBar({ dash }: { dash: Dashboard }) {
+export function TopBar({ dash, onLogout }: { dash: Dashboard; onLogout?: () => void }) {
     const { agentOnline, userName, setView } = dash;
     const userInitial = userName[0] ?? 'A';
 
@@ -136,6 +136,27 @@ export function TopBar({ dash }: { dash: Dashboard }) {
                     {userInitial}
                 </div>
                 <div style={{ fontSize: 12.5, fontWeight: 500 }}>{userName}</div>
+                {onLogout && (
+                    <button
+                        onClick={onLogout}
+                        title="Sign out"
+                        className="ry-hover-white"
+                        style={{
+                            display: 'grid',
+                            placeItems: 'center',
+                            width: 30,
+                            height: 30,
+                            borderRadius: 10,
+                            border: '1px solid rgba(255,255,255,0.055)',
+                            background: 'rgba(255,255,255,0.03)',
+                            cursor: 'pointer',
+                            color: '#98A2B8',
+                            fontSize: 11,
+                        }}
+                    >
+                        ⎋
+                    </button>
+                )}
             </div>
         </div>
     );

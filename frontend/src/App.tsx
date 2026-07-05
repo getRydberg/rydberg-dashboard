@@ -1,6 +1,7 @@
 import { Sidebar } from './components/Sidebar';
 import { TopBar } from './components/TopBar';
 import { ArticleOverlay } from './components/ArticleOverlay';
+import { LoginScreen } from './components/LoginScreen';
 import { DashboardView } from './components/views/DashboardView';
 import { JobTrackerView } from './components/views/JobTrackerView';
 import { InboxView } from './components/views/InboxView';
@@ -10,9 +11,29 @@ import { TasksView } from './components/views/TasksView';
 import { LogView } from './components/views/LogView';
 import { SettingsView } from './components/views/SettingsView';
 import { useDashboard } from './useDashboard';
+import { useAuth } from './useAuth';
 
 function App() {
-  const dash = useDashboard();
+  const auth = useAuth();
+
+  if (auth.loading) {
+    return (
+      <div style={{ height: '100vh', width: '100vw', display: 'grid', placeItems: 'center', background: '#0A0C12', color: '#98A2B8' }}>
+        Loading…
+      </div>
+    );
+  }
+
+  if (!auth.user) {
+    const params = new URLSearchParams(window.location.search);
+    return <LoginScreen login={auth.login} error={params.get('error')} />;
+  }
+
+  return <Dashboard userName={auth.user.name ?? auth.user.email} onLogout={auth.logout} />;
+}
+
+function Dashboard({ userName, onLogout }: { userName: string; onLogout: () => void }) {
+  const dash = useDashboard(userName);
   const sidebarWidth = dash.sidebarOpen ? 236 : 64;
 
   return (
@@ -46,7 +67,7 @@ function App() {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative', zIndex: 2 }}>
-        <TopBar dash={dash} />
+        <TopBar dash={dash} onLogout={onLogout} />
 
         <div style={{ flex: 1, overflowY: 'auto', padding: '26px 28px 40px' }}>
           {dash.view === 'dash' && <DashboardView dash={dash} />}
