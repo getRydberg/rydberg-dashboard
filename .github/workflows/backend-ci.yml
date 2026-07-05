@@ -10,7 +10,7 @@ on:
       - 'backend/**'
 
 jobs:
-  lint-and-test:
+  lint:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -20,9 +20,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-          cache-dependency-path: backend/requirements.txt
-      - run: pip install -r requirements.txt
-      - run: pip install ruff pytest
-      - run: ruff check .
-      - run: pytest
+      - name: Install ruff
+        run: pip install ruff
+      # Lint only for now. Once there's real code + tests, add:
+      #   - pip install -r requirements.txt
+      #   - pytest
+      - name: Lint
+        run: ruff check .
+      - name: Format check
+        run: ruff format --check .
