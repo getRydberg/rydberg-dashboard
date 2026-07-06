@@ -3,7 +3,7 @@ services:
     build:
       context: ../frontend
       dockerfile: Dockerfile
-    container_name: rydberg-frontend
+    container_name: rydberg-frontend-dashboard
     restart: unless-stopped
     profiles:
       - dashboard-core

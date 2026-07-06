@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: rydberg-postgres
+    container_name: rydberg-postgres-dashboard
     restart: unless-stopped
     profiles:
       - dashboard-core

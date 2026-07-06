@@ -1,7 +1,7 @@
 services:
   vllm:
     image: intel/vllm:latest
-    container_name: rydberg-vllm
+    container_name: rydberg-vllm-dashboard
     restart: unless-stopped
     profiles:
       - dashboard-vllm
