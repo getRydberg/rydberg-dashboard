@@ -6,8 +6,8 @@ services:
     container_name: rydberg-backend-dashboard
     restart: unless-stopped
     profiles:
-      - dashboard-core
-      - dashboard-full
+      - core-dashboard
+      - dashboard
     ports:
       - "8080:8080"
     volumes:
@@ -27,7 +27,7 @@ services:
       COOKIE_SECURE: ${COOKIE_SECURE}
       FRONTEND_URL: ${FRONTEND_URL}
     depends_on:
-      - postgres
+      - postgres-dashboard
     networks:
       - rydberg-net
 
