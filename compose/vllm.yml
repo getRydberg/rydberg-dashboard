@@ -4,8 +4,8 @@ services:
     container_name: rydberg-vllm
     restart: unless-stopped
     profiles:
-      - vllm
-      - full
+      - dashboard-vllm
+      - dashboard-full
     ports:
       - "8000:8000"
     devices:

@@ -6,8 +6,8 @@ services:
     container_name: rydberg-frontend
     restart: unless-stopped
     profiles:
-      - core
-      - full
+      - dashboard-core
+      - dashboard-full
     ports:
       - "5173:5173"
     volumes:
