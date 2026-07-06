@@ -1,5 +1,5 @@
 services:
-  postgres:
+  postgres-dashboard:
     image: postgres:16-alpine
     container_name: rydberg-postgres-dashboard
     restart: unless-stopped

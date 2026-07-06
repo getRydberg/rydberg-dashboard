@@ -1,5 +1,5 @@
 services:
-  vllm:
+  vllm-dashboard:
     image: intel/vllm:latest
     container_name: rydberg-vllm-dashboard
     restart: unless-stopped
